@@ -39,11 +39,11 @@ export default function GapInput({
   const numberInputClass = [
     'w-full rounded-xl px-3 py-3 border-2',
     'text-lg font-mono font-bold text-center',
-    'text-amber-600 dark:text-amber-400',
+    'text-slate-800 dark:text-white',
     'bg-white dark:bg-slate-800',
     'border-slate-200 dark:border-slate-700',
     'outline-none transition-all',
-    'focus:border-amber-400 dark:focus:border-amber-500',
+    'focus:border-blue-400 dark:focus:border-blue-500',
     'disabled:opacity-40 disabled:cursor-not-allowed',
     '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
   ].join(' ');
@@ -70,7 +70,7 @@ export default function GapInput({
               'disabled:opacity-40 disabled:cursor-not-allowed',
               isNegative
                 ? 'bg-red-50 dark:bg-red-900/40 border-red-300 dark:border-red-700 text-red-500 dark:text-red-400'
-                : 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400',
+                : 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-blue-400',
             ].join(' ')}
             aria-label={isNegative ? 'Écart négatif' : 'Écart positif'}
           >

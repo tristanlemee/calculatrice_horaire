@@ -14,7 +14,7 @@ export default function Header({ onSettingsOpen, onThemeToggle, isDark }: Header
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center shrink-0" style={{ backgroundColor: '#1e293b' }}>
             <Clock size={18} className="text-blue-400" />
           </div>
           <div>
