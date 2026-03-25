@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import type { CalculationMode, TimeString, Minutes } from '@models';
 import { useSettings } from '@contexts/SettingsContext';
 import { useCalculation } from '@hooks/useCalculation';
@@ -51,52 +52,73 @@ export default function Calculator() {
       : 'Écart résultant';
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full pt-5">
       <ModeSelector mode={mode} onChange={handleModeChange} />
 
-      <div className="flex flex-col gap-6 p-4 border border-t-0 border-slate-800 bg-slate-900/20">
-        <div key={mode} className="flex flex-col gap-4 animate-mode-enter">
-          {(mode === 'arrival-to-departure' || mode === 'both-to-gap') && (
+      <div key={mode} className="flex flex-col gap-5 animate-mode-enter">
+        {mode === 'both-to-gap' ? (
+          <div className="grid grid-cols-2 gap-3">
             <TimeInput
               label="Arrivée"
               value={arrival}
               onChange={setArrival}
               error={showArrivalWarning ? arrivalWarning : undefined}
             />
-          )}
-
-          {(mode === 'departure-to-arrival' || mode === 'both-to-gap') && (
             <TimeInput
               label="Départ"
               value={departure}
               onChange={setDeparture}
             />
-          )}
-
-          <GapInput
-            label="Écart actuel (optionnel)"
-            value={currentGap}
-            onChange={setCurrentGap}
-          />
-
-          {gapWarning && (
-            <p className="text-sm text-red-400">{gapWarning}</p>
-          )}
-        </div>
-
-        {result ? (
-          <ResultDisplay
-            label={resultLabel}
-            time={mode !== 'both-to-gap' ? result.computedTime : undefined}
-            gap={result.newGap}
-            warnings={result.warnings}
-          />
-        ) : (
-          <div className="flex items-center justify-center py-8 text-slate-500 text-sm tracking-wide">
-            Saisissez une heure pour calculer
           </div>
+        ) : (
+          <>
+            {mode === 'arrival-to-departure' && (
+              <TimeInput
+                label="Arrivée"
+                value={arrival}
+                onChange={setArrival}
+                error={showArrivalWarning ? arrivalWarning : undefined}
+              />
+            )}
+            {mode === 'departure-to-arrival' && (
+              <TimeInput
+                label="Départ"
+                value={departure}
+                onChange={setDeparture}
+              />
+            )}
+          </>
+        )}
+
+        <GapInput
+          label="Écart actuel (optionnel)"
+          value={currentGap}
+          onChange={setCurrentGap}
+        />
+
+        {gapWarning && (
+          <p className="text-xs text-red-500 dark:text-red-400">{gapWarning}</p>
         )}
       </div>
+
+      <div className="flex items-center gap-3 my-6">
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+        <ChevronDown size={16} className="text-slate-400 dark:text-slate-500" />
+        <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+      </div>
+
+      {result ? (
+        <ResultDisplay
+          label={resultLabel}
+          time={mode !== 'both-to-gap' ? result.computedTime : undefined}
+          gap={result.newGap}
+          warnings={result.warnings}
+        />
+      ) : (
+        <div className="flex items-center justify-center py-8 text-xs text-slate-400 dark:text-slate-500 tracking-wide">
+          Saisissez une heure pour calculer
+        </div>
+      )}
     </div>
   );
 }

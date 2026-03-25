@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
@@ -22,7 +23,10 @@
   }
 }
 
-/* Native time picker in dark mode */
 input[type="time"] {
+  color-scheme: light;
+}
+
+.dark input[type="time"] {
   color-scheme: dark;
 }

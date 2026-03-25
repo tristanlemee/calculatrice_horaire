@@ -5,22 +5,22 @@ import Calculator from '@components/Calculator';
 import SettingsPanel from '@components/SettingsPanel';
 
 export default function App() {
+  const [isDark, setIsDark] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <SettingsProvider>
       <div
-        className="min-h-screen bg-slate-950 text-white flex flex-col font-sans"
-        style={{
-          paddingTop: 'env(safe-area-inset-top)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
-        }}
+        className={`${isDark ? 'dark' : ''} min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white flex flex-col font-sans transition-colors duration-300`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <Header onSettingsOpen={() => setSettingsOpen(true)} />
-        <main className="flex-1 flex items-center justify-center px-4 py-8">
-          <div className="w-full max-w-lg">
-            <Calculator />
-          </div>
+        <Header
+          onSettingsOpen={() => setSettingsOpen(true)}
+          onThemeToggle={() => setIsDark(d => !d)}
+          isDark={isDark}
+        />
+        <main className="flex-1 px-5 pb-8">
+          <Calculator />
         </main>
         <SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </div>

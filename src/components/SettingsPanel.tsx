@@ -1,5 +1,5 @@
 import { useState, useEffect, useId } from 'react';
-import { X, Settings, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useSettings } from '@contexts/SettingsContext';
 import TimeInput from '@components/TimeInput';
 import type { TimeString } from '@models';
@@ -65,15 +65,17 @@ function validate(d: Draft): ValidationErrors {
   return errors;
 }
 
-const NUMBER_INPUT_CLS = (hasError: boolean) =>
+const numberInputCls = (hasError: boolean) =>
   [
-    'bg-slate-900 text-white px-3 py-2 text-lg font-mono min-h-12',
-    'border outline-none rounded-none w-20',
-    'transition-colors duration-150',
-    'focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/40',
+    'rounded-xl px-4 py-3 border-2 w-full',
+    'text-base font-mono font-bold',
+    'text-slate-800 dark:text-white',
+    'bg-white dark:bg-slate-800',
+    'outline-none transition-all',
+    'focus:border-blue-400 dark:focus:border-blue-500',
     hasError
-      ? 'border-red-500 focus:border-red-400'
-      : 'border-slate-700 focus:border-blue-500',
+      ? 'border-red-300 dark:border-red-700'
+      : 'border-slate-200 dark:border-slate-700',
   ].join(' ');
 
 export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
@@ -85,13 +87,11 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const workHoursId = useId();
   const workMinsId = useId();
 
-  // Sync draft when settings change externally (reset)
   useEffect(() => {
     setDraft(settingsToDraft(settings));
     setErrors({});
   }, [settings]);
 
-  // Lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -116,176 +116,166 @@ export default function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     applyDraft(next);
   }
 
-  return (
-    <>
-      {/* Overlay */}
-      <div
-        aria-hidden="true"
-        onClick={onClose}
-        className={[
-          'fixed inset-0 bg-black/60 z-40 transition-opacity duration-300',
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none',
-        ].join(' ')}
-      />
+  const sectionCardCls = 'rounded-2xl p-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/50';
+  const sectionTitleCls = 'text-xs font-bold uppercase tracking-widest mb-4 text-slate-500 dark:text-slate-400';
 
-      {/* Panel */}
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Paramètres"
+      className={[
+        'fixed inset-0 z-50 flex flex-col',
+        'bg-slate-50 dark:bg-slate-900',
+        'transition-transform duration-300 ease-in-out',
+        isOpen ? 'translate-x-0' : 'translate-x-full',
+      ].join(' ')}
+    >
+      {/* Header */}
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Paramètres"
-        className={[
-          'fixed top-0 right-0 h-full w-full max-w-sm z-50',
-          'bg-slate-950 border-l border-slate-800',
-          'flex flex-col',
-          'transition-transform duration-300 ease-in-out',
-          isOpen ? 'translate-x-0' : 'translate-x-full',
-        ].join(' ')}
+        className="flex items-center justify-between px-5 pb-4 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shrink-0"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 3rem)' }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-slate-800 shrink-0">
-          <div className="flex items-center gap-2">
-            <Settings size={16} className="text-blue-400" />
-            <h2 className="text-white font-semibold uppercase tracking-wide text-sm">
-              Paramètres
-            </h2>
+        <button
+          onClick={onClose}
+          aria-label="Retour"
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+        >
+          <ArrowLeft size={20} className="text-slate-600 dark:text-slate-400" />
+        </button>
+        <h2 className="text-base font-black tracking-tight text-slate-800 dark:text-white">
+          Paramètres
+        </h2>
+        <button
+          onClick={resetSettings}
+          aria-label="Réinitialiser"
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-95"
+        >
+          <RotateCcw size={16} className="text-slate-600 dark:text-slate-400" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-5 py-6 flex flex-col gap-5">
+
+        {/* Pause méridienne */}
+        <div className={sectionCardCls}>
+          <h3 className={sectionTitleCls}>Pause méridienne</h3>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor={lunchId}
+              className="text-xs font-semibold tracking-widest uppercase text-slate-500 dark:text-slate-400"
+            >
+              Durée (minutes)
+            </label>
+            <input
+              id={lunchId}
+              type="number"
+              min={0}
+              value={draft.lunchBreakMinutes}
+              onChange={(e) => update({ lunchBreakMinutes: e.target.value })}
+              className={numberInputCls(!!errors.lunchBreak)}
+            />
+            {errors.lunchBreak && (
+              <span className="text-xs text-red-500 dark:text-red-400">{errors.lunchBreak}</span>
+            )}
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Fermer"
-            className="text-slate-400 hover:text-white transition-colors p-1 rounded-none outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
-          >
-            <X size={20} />
-          </button>
         </div>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8">
-
-          {/* Pause méridienne */}
-          <section>
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-              Pause méridienne
-            </h3>
-            <div className="flex flex-col gap-1">
+        {/* Durée journée */}
+        <div className={sectionCardCls}>
+          <h3 className={sectionTitleCls}>Durée de la journée</h3>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 flex flex-col gap-1.5">
               <label
-                htmlFor={lunchId}
-                className="text-sm font-medium text-slate-300 uppercase tracking-wide"
+                htmlFor={workHoursId}
+                className="text-xs font-semibold tracking-widest uppercase text-slate-500 dark:text-slate-400"
               >
-                Durée (minutes)
+                Heures
               </label>
               <input
-                id={lunchId}
+                id={workHoursId}
                 type="number"
                 min={0}
-                value={draft.lunchBreakMinutes}
-                onChange={(e) => update({ lunchBreakMinutes: e.target.value })}
-                className={NUMBER_INPUT_CLS(!!errors.lunchBreak)}
-              />
-              {errors.lunchBreak && (
-                <span className="text-sm text-red-400">{errors.lunchBreak}</span>
-              )}
-            </div>
-          </section>
-
-          {/* Durée journée */}
-          <section>
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-              Durée de la journée
-            </h3>
-            <div className="flex items-end gap-2">
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor={workHoursId}
-                  className="text-sm font-medium text-slate-300 uppercase tracking-wide"
-                >
-                  Heures
-                </label>
-                <input
-                  id={workHoursId}
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={draft.workDayHours}
-                  onChange={(e) => update({ workDayHours: e.target.value })}
-                  className={NUMBER_INPUT_CLS(!!errors.workDay)}
-                />
-              </div>
-              <span className="text-slate-400 font-mono text-xl pb-2">h</span>
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor={workMinsId}
-                  className="text-sm font-medium text-slate-300 uppercase tracking-wide"
-                >
-                  Min
-                </label>
-                <input
-                  id={workMinsId}
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={draft.workDayMins}
-                  onChange={(e) => update({ workDayMins: e.target.value })}
-                  className={NUMBER_INPUT_CLS(!!errors.workDay)}
-                />
-              </div>
-            </div>
-            {errors.workDay && (
-              <span className="text-sm text-red-400 mt-1 block">{errors.workDay}</span>
-            )}
-          </section>
-
-          {/* Plage d'arrivée */}
-          <section>
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-              Plage d'arrivée
-            </h3>
-            <div className="flex gap-4">
-              <TimeInput
-                label="Début"
-                value={draft.arrivalStart}
-                onChange={(v) => update({ arrivalStart: v })}
-              />
-              <TimeInput
-                label="Fin"
-                value={draft.arrivalEnd}
-                onChange={(v) => update({ arrivalEnd: v })}
-                error={errors.arrivalRange}
+                max={23}
+                value={draft.workDayHours}
+                onChange={(e) => update({ workDayHours: e.target.value })}
+                className={numberInputCls(!!errors.workDay)}
               />
             </div>
-          </section>
-
-          {/* Plage de départ */}
-          <section>
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-              Plage de départ
-            </h3>
-            <div className="flex gap-4">
-              <TimeInput
-                label="Début"
-                value={draft.departureStart}
-                onChange={(v) => update({ departureStart: v })}
-              />
-              <TimeInput
-                label="Fin"
-                value={draft.departureEnd}
-                onChange={(v) => update({ departureEnd: v })}
-                error={errors.departureRange}
+            <span className="text-slate-400 dark:text-slate-500 font-mono text-xl mb-3">h</span>
+            <div className="flex-1 flex flex-col gap-1.5">
+              <label
+                htmlFor={workMinsId}
+                className="text-xs font-semibold tracking-widest uppercase text-slate-500 dark:text-slate-400"
+              >
+                Min
+              </label>
+              <input
+                id={workMinsId}
+                type="number"
+                min={0}
+                max={59}
+                value={draft.workDayMins}
+                onChange={(e) => update({ workDayMins: e.target.value })}
+                className={numberInputCls(!!errors.workDay)}
               />
             </div>
-          </section>
+          </div>
+          {errors.workDay && (
+            <span className="text-xs text-red-500 dark:text-red-400 mt-2 block">{errors.workDay}</span>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-4 border-t border-slate-800 shrink-0">
-          <button
-            onClick={resetSettings}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-red-400 transition-colors uppercase tracking-wide outline-none rounded-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
-          >
-            <RotateCcw size={14} />
-            Réinitialiser les valeurs par défaut
-          </button>
+        {/* Plage d'arrivée */}
+        <div className={sectionCardCls}>
+          <h3 className={sectionTitleCls}>Plage d'arrivée</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <TimeInput
+              label="Début"
+              value={draft.arrivalStart}
+              onChange={(v) => update({ arrivalStart: v })}
+            />
+            <TimeInput
+              label="Fin"
+              value={draft.arrivalEnd}
+              onChange={(v) => update({ arrivalEnd: v })}
+              error={errors.arrivalRange}
+            />
+          </div>
+        </div>
+
+        {/* Plage de départ */}
+        <div className={sectionCardCls}>
+          <h3 className={sectionTitleCls}>Plage de départ</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <TimeInput
+              label="Début"
+              value={draft.departureStart}
+              onChange={(v) => update({ departureStart: v })}
+            />
+            <TimeInput
+              label="Fin"
+              value={draft.departureEnd}
+              onChange={(v) => update({ departureEnd: v })}
+              error={errors.departureRange}
+            />
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Footer */}
+      <div
+        className="px-5 shrink-0"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 2.5rem)' }}
+      >
+        <button
+          onClick={onClose}
+          className="w-full py-4 rounded-2xl bg-blue-500 text-white font-black text-base tracking-wide transition-all active:scale-95"
+        >
+          Enregistrer
+        </button>
+      </div>
+    </div>
   );
 }
