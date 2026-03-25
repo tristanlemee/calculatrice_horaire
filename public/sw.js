@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pointeuse-v1'
+const CACHE_NAME = 'pointeuse-v2.0.0'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
